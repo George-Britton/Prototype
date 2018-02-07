@@ -1,5 +1,5 @@
 var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update });
-var scene, player, grandfather, constable, body, detective, inspector, door, background, menuButton, booksButton, destination;
+var scene, player, grandfather, constable, body, detective, inspector, door, background, menuButton, booksButton, destination, moving = false, direction = "left";
 
 function preload() {
     scene = "crime scene";
@@ -27,7 +27,6 @@ function create() {
         grandfather = game.add.sprite(1300, 425, 'grandfather')
         game.physics.enable(grandfather, Phaser.Physics.ARCADE);
 
-
         player = game.add.sprite(1000, 500, 'player')
         game.physics.enable(player, Phaser.Physics.ARCADE);
 
@@ -51,20 +50,63 @@ function create() {
 
     grandfather.animations.add('grandfatherIdleRight', [7], 1, true);
     grandfather.animations.add('grandfatherIdleLeft', [4], 1, true);
+    grandfather.animations.add('grandfatherIdleFrontt', [1], 1, true);
     constable.animations.add('constableIdleLeft', [4], 1, true);
+    constable.animations.add('constableIdleFront', [1], 1, true);
+    detective.animations.add('detectiveIdleFront', [1], 1, true);
+    inspector.animations.add('inspectorIdleFront', [1], 1, true);
     player.animations.add('playerIdleRight', [7], 1, true);
     player.animations.add('playerIdleLeft', [4], 1, true);
+    player.animations.add('playerIdleFront', [1], 1, true);
+    player.animations.add('playerIdleBack', [10], 1, true);
     player.animations.add('moveRight', [8, 7, 6, 7], 6, true);
     player.animations.add('moveLeft', [5, 4, 3, 4], 6, true);
 }
 
+function onTap(pointer) {
+    destination = game.add.sprite(pointer.x, pointer.y);
+    moving = true;
+    if (destination.x < player.x) {
+        direction = "left";
+    } else if (destination.x > player.x) {
+        direction = "right";
+    }
+}
+
 function update() {
     if (scene == "house") {
-        player.animations.play('playerIdleRight');
         grandfather.animations.play('grandfatherIdleLeft');
     } else if (scene == "crime scene") {
-        player.animations.play('playerIdleLeft');
         grandfather.animations.play('grandfatherIdleLeft');
         constable.animations.play('constableIdleLeft');
+    } else if (scene == "clue search") {
+        player.animations.play('playerIdleBack');
+    } else if (scene == "constbulary") {
+        grandfather.animations.play('grandfatherIdleFront');
+        constable.animations.play('constableIdleFront');
+        detective.animations.play('detectiveIdleFront');
+        inspector.animations.play('inspectorIdleFront');
     }
+
+    if (moving && direction == "left") {
+        player.animations.play('moveLeft');
+        player.body.velocity.x = -100;
+    } else if (moving && direction == "right") {
+        player.animations.play('moveRight');
+        player.body.velocity.x = 100;
+    } else if (!moving && direction == "left"){
+        player.body.velocity.x = 0;
+        player.animations.play('playerIdleLeft');
+        destination.destroy();
+    } else if (!moving && direction == "right") {
+        player.body.velocity.x = 0;
+        player.animations.play('playerIdleRight');
+        destination.destroy();
+    }
+
+    if (player.x < destination.x + 10 && player.x > destination.x - 10) {
+        moving = false;
+    }
+
+    game.input.onTap.add(onTap, this);
 }

@@ -1,8 +1,8 @@
 var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update, render: render });
-var scene, player, grandfather, constable, body, detective, inspector, door, background, menuButton, booksButton, destination, moving = false, direction = "left";
+var scene, player, grandfather, constable, corpse, detective, inspector, door, background, menuButton, booksButton, destination, moving = false, direction = "left";
 
 function preload() {
-    scene = "house";
+    scene = "crime scene";
 
     this.game.load.image('house_background', 'images/house_background.png');
     this.game.load.image('crimeScene_background', 'images/crimeScene_background.png');
@@ -15,7 +15,7 @@ function preload() {
     this.game.load.spritesheet('constable', 'images/constable.png', 250, 250);
     this.game.load.spritesheet('detective', 'images/detective.png', 250, 250);
     this.game.load.spritesheet('inspector', 'images/inspector.png', 250, 250);
-    this.game.load.image('body', 'images/body.png');
+    this.game.load.image('corpse', 'images/body.png');
 }
 
 function create() {
@@ -43,32 +43,34 @@ function create() {
         constable = game.add.sprite(1450, 393, 'constable');
         game.physics.enable(constable, Phaser.Physics.ARCADE);
 
-        body = game.add.sprite(300, 585, 'body');
+        corpse = game.add.sprite(300, 585, 'corpse');
+        game.physics.enable(corpse, Phaser.Physics.ARCADE);
 
-        player = game.add.sprite(1150, 494, 'player')
+        player = game.add.sprite(1100, 494, 'player')
         game.physics.enable(player, Phaser.Physics.ARCADE);
     }
 
     player.anchor.setTo(0.5, 0);
+    grandfather.anchor.setTo(0.5, 0);
 
-    grandfather.animations.add('grandfatherIdleRight', [7], 1, true);
-    grandfather.animations.add('grandfatherIdleLeft', [4], 1, true);
-    grandfather.animations.add('grandfatherIdleFrontt', [1], 1, true);
-    /*constable.animations.add('constableIdleLeft', [4], 1, true);
-    constable.animations.add('constableIdleFront', [1], 1, true);
-    detective.animations.add('detectiveIdleFront', [1], 1, true);
-    inspector.animations.add('inspectorIdleFront', [1], 1, true);*/
     player.animations.add('playerIdleRight', [7], 1, true);
     player.animations.add('playerIdleLeft', [4], 1, true);
     player.animations.add('playerIdleFront', [1], 1, true);
     player.animations.add('playerIdleBack', [10], 1, true);
     player.animations.add('moveRight', [8, 7, 6, 7], 6, true);
     player.animations.add('moveLeft', [5, 4, 3, 4], 6, true);
+    grandfather.animations.add('grandfatherIdleRight', [7], 1, true);
+    grandfather.animations.add('grandfatherIdleLeft', [4], 1, true);
+    grandfather.animations.add('grandfatherIdleFrontt', [1], 1, true);
+    constable.animations.add('constableIdleLeft', [4], 1, true);
+    constable.animations.add('constableIdleFront', [1], 1, true);
+    detective.animations.add('detectiveIdleFront', [1], 1, true);
+    inspector.animations.add('inspectorIdleFront', [1], 1, true);
+
 }
 
 function onTap(pointer) {
     destination = game.add.sprite(pointer.x, pointer.y, 'destination');
-    console.log(pointer.x);
     moving = true;
     if (destination.x < player.x) {
         direction = "left";
@@ -79,14 +81,8 @@ function onTap(pointer) {
 
 function stopMoving() {
     moving = false;
-    if (direction == "left") {
-        player.body.velocity.x = 0;
-        player.animations.play('playerIdleLeft');
-    } else if (direction == "right") {
-        player.body.velocity.x = 0;
-        player.animations.play('playerIdleRight');
-    }
     destination.destroy();
+    player.body.velocity.x = 0;
 }
 
 function update() {
@@ -105,18 +101,30 @@ function update() {
     }
 
     if (moving) {
-        if (destination.x < player.x) {
+        if (destination.x < player.x - 50) {
             player.body.velocity.x = -150;
             player.animations.play('moveLeft');
-        } else if (destination.x > player.x) {
+        } else if (destination.x > player.x + 50) {
             player.body.velocity.x = 150;
             player.animations.play('moveRight');
         } else {
             stopMoving();
         }
+    } else {
+        if (direction == "left") {
+            player.animations.play('playerIdleLeft');
+        } else {
+            player.animations.play('playerIdleRight');
+        }
     }
-    
-    console.log(moving);
+
+    grandfather.body.immovable = true;
+    game.physics.arcade.collide(player, grandfather, stopMoving, null, this);
+
+    corpse.body.immovable = true;
+    game.physics.arcade.collide(player, corpse, stopMoving, null, this);
+
+
 
     game.input.onTap.add(onTap, this);
 }

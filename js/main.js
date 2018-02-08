@@ -1,11 +1,10 @@
 var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update, render: render });
-var scene, player, grandfather, constable, corpse, detective, inspector, door, background, menuButton, booksButton, destination, moving = false, direction = "left";
+var scene = "confrontation", player, grandfather, constable, corpse, detective, inspector, door, background, menuButton, booksButton, destination, moving = false, direction = "left";
 
 function preload() {
-    scene = "crime scene";
-
     this.game.load.image('house_background', 'images/house_background.png');
     this.game.load.image('crimeScene_background', 'images/crimeScene_background.png');
+    this.game.load.image('confrontation_background', 'images/confrontation_background.png')
     this.game.load.image('dialogueBox', 'images/dialogueBox.png');
     this.game.load.image('menuButton', 'images/menuButton.png');
     this.game.load.image('booksButton', 'images/booksButton.png');
@@ -21,34 +20,24 @@ function preload() {
 function create() {
     if (scene == "house") {
         background = game.add.image(0, 0, 'house_background');
-        this.game.add.image(0, 700, 'dialogueBox');
-        menuButton = game.add.image(1725, 630, 'menuButton');
-        booksButton = game.add.image(1635, 630, 'booksButton');
-
-        grandfather = game.add.sprite(1300, 425, 'grandfather')
-        game.physics.enable(grandfather, Phaser.Physics.ARCADE);
-
-        player = game.add.sprite(1000, 500, 'player')
-        game.physics.enable(player, Phaser.Physics.ARCADE);
-
     } else if (scene == "crime scene") {
         background = game.add.image(0, 0, 'crimeScene_background');
-        this.game.add.image(0, 700, 'dialogueBox');
-        menuButton = game.add.image(1725, 630, 'menuButton');
-        booksButton = game.add.image(1635, 630, 'booksButton');
-
-        grandfather = game.add.sprite(1300, 421, 'grandfather')
-        game.physics.enable(grandfather, Phaser.Physics.ARCADE);
-
-        constable = game.add.sprite(1450, 393, 'constable');
-        game.physics.enable(constable, Phaser.Physics.ARCADE);
-
-        corpse = game.add.sprite(300, 585, 'corpse');
-        game.physics.enable(corpse, Phaser.Physics.ARCADE);
-
-        player = game.add.sprite(1100, 494, 'player')
-        game.physics.enable(player, Phaser.Physics.ARCADE);
+    } else if (scene == "confrontation") {
+        background = game.add.image(0, 0, 'confrontation_background');
     }
+       
+    this.game.add.image(0, 700, 'dialogueBox');
+    menuButton = game.add.image(1725, 630, 'menuButton');
+    booksButton = game.add.image(1635, 630, 'booksButton');
+    constable = game.add.sprite(1450, 393, 'constable');
+    corpse = game.add.sprite(300, 585, 'corpse');
+    grandfather = game.add.sprite(1300, 425, 'grandfather');
+    player = game.add.sprite(1000, 500, 'player');
+
+    game.physics.enable(constable, Phaser.Physics.ARCADE);
+    game.physics.enable(corpse, Phaser.Physics.ARCADE);
+    game.physics.enable(grandfather, Phaser.Physics.ARCADE);
+    game.physics.enable(player, Phaser.Physics.ARCADE);
 
     player.anchor.setTo(0.5, 0);
     grandfather.anchor.setTo(0.5, 0);
@@ -57,16 +46,13 @@ function create() {
     player.animations.add('playerIdleLeft', [4], 1, true);
     player.animations.add('playerIdleFront', [1], 1, true);
     player.animations.add('playerIdleBack', [10], 1, true);
-    player.animations.add('moveRight', [8, 7, 6, 7], 6, true);
-    player.animations.add('moveLeft', [5, 4, 3, 4], 6, true);
+    player.animations.add('moveRight', [8, 7, 6, 7], 8, true);
+    player.animations.add('moveLeft', [5, 4, 3, 4], 8, true);
     grandfather.animations.add('grandfatherIdleRight', [7], 1, true);
     grandfather.animations.add('grandfatherIdleLeft', [4], 1, true);
-    grandfather.animations.add('grandfatherIdleFrontt', [1], 1, true);
+    grandfather.animations.add('grandfatherIdleFront', [1], 1, true);
     constable.animations.add('constableIdleLeft', [4], 1, true);
     constable.animations.add('constableIdleFront', [1], 1, true);
-    detective.animations.add('detectiveIdleFront', [1], 1, true);
-    inspector.animations.add('inspectorIdleFront', [1], 1, true);
-
 }
 
 function onTap(pointer) {
@@ -88,24 +74,44 @@ function stopMoving() {
 function update() {
     if (scene == "house") {
         grandfather.animations.play('grandfatherIdleLeft');
+        grandfather.visible = true;
+        corpse.visible = false;
+        constable.visible = false;
+        player.y = 500;
+        grandfather.x = 1300;
+        grandfather.y = 425;
     } else if (scene == "crime scene") {
         grandfather.animations.play('grandfatherIdleLeft');
         constable.animations.play('constableIdleLeft');
+        grandfather.visible = true;
+        corpse.visible = true;
+        constable.visible = true;
+        player.y = 494;
+        grandfather.x = 1300;
+        grandfather.y = 421;
+        constable.x = 1405;
+        constable.y = 393;
     } else if (scene == "clue search") {
         player.animations.play('playerIdleBack');
-    } else if (scene == "constbulary") {
-        grandfather.animations.play('grandfatherIdleFront');
-        constable.animations.play('constableIdleFront');
-        detective.animations.play('detectiveIdleFront');
-        inspector.animations.play('inspectorIdleFront');
+    } else if (scene == "confrontation") {
+        grandfather.animations.play('grandfatherIdleLeft');
+        constable.animations.play('constableIdleLeft');
+        grandfather.visible = true;
+        constable.visible = true;
+        corpse.visible = false;
+        player.y = 540;
+        grandfather.x = 1550;
+        grandfather.y = 450;
+        constable.x = 1350;
+        constable.y = 300;
     }
 
     if (moving) {
         if (destination.x < player.x - 50) {
-            player.body.velocity.x = -150;
+            player.body.velocity.x = -200;
             player.animations.play('moveLeft');
         } else if (destination.x > player.x + 50) {
-            player.body.velocity.x = 150;
+            player.body.velocity.x = 200;
             player.animations.play('moveRight');
         } else {
             stopMoving();
@@ -117,14 +123,18 @@ function update() {
             player.animations.play('playerIdleRight');
         }
     }
+    if (!moving && player.x < 550 && scene == "confrontation") {
+        player.animations.play('playerIdleBack');
+    }
 
-    grandfather.body.immovable = true;
-    game.physics.arcade.collide(player, grandfather, stopMoving, null, this);
-
+    if (grandfather.visible == true) {
+        grandfather.body.immovable = true;
+        game.physics.arcade.collide(player, grandfather, stopMoving, null, this);
+    }
+    if (corpse.visible == true) {
     corpse.body.immovable = true;
     game.physics.arcade.collide(player, corpse, stopMoving, null, this);
-
-
+    }
 
     game.input.onTap.add(onTap, this);
 }

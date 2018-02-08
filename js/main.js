@@ -1,14 +1,15 @@
-var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update });
+var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update, render: render });
 var scene, player, grandfather, constable, body, detective, inspector, door, background, menuButton, booksButton, destination, moving = false, direction = "left";
 
 function preload() {
-    scene = "crime scene";
+    scene = "house";
 
     this.game.load.image('house_background', 'images/house_background.png');
     this.game.load.image('crimeScene_background', 'images/crimeScene_background.png');
     this.game.load.image('dialogueBox', 'images/dialogueBox.png');
     this.game.load.image('menuButton', 'images/menuButton.png');
     this.game.load.image('booksButton', 'images/booksButton.png');
+    this.game.load.image('destination', 'images/destination.png');
     this.game.load.spritesheet('player', 'images/player.png', 150, 150);
     this.game.load.spritesheet('grandfather', 'images/grandfather.png', 225, 225);
     this.game.load.spritesheet('constable', 'images/constable.png', 250, 250);
@@ -48,13 +49,15 @@ function create() {
         game.physics.enable(player, Phaser.Physics.ARCADE);
     }
 
+    player.anchor.setTo(0.5, 0);
+
     grandfather.animations.add('grandfatherIdleRight', [7], 1, true);
     grandfather.animations.add('grandfatherIdleLeft', [4], 1, true);
     grandfather.animations.add('grandfatherIdleFrontt', [1], 1, true);
-    constable.animations.add('constableIdleLeft', [4], 1, true);
+    /*constable.animations.add('constableIdleLeft', [4], 1, true);
     constable.animations.add('constableIdleFront', [1], 1, true);
     detective.animations.add('detectiveIdleFront', [1], 1, true);
-    inspector.animations.add('inspectorIdleFront', [1], 1, true);
+    inspector.animations.add('inspectorIdleFront', [1], 1, true);*/
     player.animations.add('playerIdleRight', [7], 1, true);
     player.animations.add('playerIdleLeft', [4], 1, true);
     player.animations.add('playerIdleFront', [1], 1, true);
@@ -64,13 +67,26 @@ function create() {
 }
 
 function onTap(pointer) {
-    destination = game.add.sprite(pointer.x, pointer.y);
+    destination = game.add.sprite(pointer.x, pointer.y, 'destination');
+    console.log(pointer.x);
     moving = true;
     if (destination.x < player.x) {
         direction = "left";
     } else if (destination.x > player.x) {
         direction = "right";
     }
+}
+
+function stopMoving() {
+    moving = false;
+    if (direction == "left") {
+        player.body.velocity.x = 0;
+        player.animations.play('playerIdleLeft');
+    } else if (direction == "right") {
+        player.body.velocity.x = 0;
+        player.animations.play('playerIdleRight');
+    }
+    destination.destroy();
 }
 
 function update() {
@@ -88,25 +104,23 @@ function update() {
         inspector.animations.play('inspectorIdleFront');
     }
 
-    if (moving && direction == "left") {
-        player.animations.play('moveLeft');
-        player.body.velocity.x = -100;
-    } else if (moving && direction == "right") {
-        player.animations.play('moveRight');
-        player.body.velocity.x = 100;
-    } else if (!moving && direction == "left"){
-        player.body.velocity.x = 0;
-        player.animations.play('playerIdleLeft');
-        destination.destroy();
-    } else if (!moving && direction == "right") {
-        player.body.velocity.x = 0;
-        player.animations.play('playerIdleRight');
-        destination.destroy();
+    if (moving) {
+        if (destination.x < player.x) {
+            player.body.velocity.x = -150;
+            player.animations.play('moveLeft');
+        } else if (destination.x > player.x) {
+            player.body.velocity.x = 150;
+            player.animations.play('moveRight');
+        } else {
+            stopMoving();
+        }
     }
-
-    if (player.x < destination.x + 10 && player.x > destination.x - 10) {
-        moving = false;
-    }
+    
+    console.log(moving);
 
     game.input.onTap.add(onTap, this);
+}
+
+function render() {
+
 }

@@ -1,10 +1,11 @@
 var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update, render: render });
-var scene = "house", player, nextButton, previousButton, grandfather, constable, corpse, detective, inspector, door, background, menuButton, booksButton, destination, moving = false, direction = "left";
+var scene = "house", player, nextButton, previousButton, grandfather, constable, corpse, detective, inspector, door, background, dialogueBox, menuButton, booksButton, destination, moving = false, direction = "left";
 
 function preload() {
     this.game.load.image('house_background', 'images/house_background.png');
     this.game.load.image('crimeScene_background', 'images/crimeScene_background.png');
-    this.game.load.image('confrontation_background', 'images/confrontation_background.png')
+    this.game.load.image('clueSearch_background', 'images/clueSearch_background.png');
+    this.game.load.image('confrontation_background', 'images/confrontation_background.png');
     this.game.load.image('dialogueBox', 'images/dialogueBox.png');
     this.game.load.image('menuButton', 'images/menuButton.png');
     this.game.load.image('booksButton', 'images/booksButton.png');
@@ -25,19 +26,21 @@ function create() {
         background = game.add.image(0, 0, 'house_background');
     } else if (scene == "crime scene") {
         background = game.add.image(0, 0, 'crimeScene_background');
+    } else if (scene == "clue search") {
+        background = game.add.image(0, 0, 'clueSearch_background');
     } else if (scene == "confrontation") {
         background = game.add.image(0, 0, 'confrontation_background');
     } //this if statement assigns the correct background image for the scene
        
-    this.game.add.image(0, 700, 'dialogueBox');
+    dialogueBox = game.add.image(0, 700, 'dialogueBox');
     constable = game.add.sprite(1450, 393, 'constable');
     corpse = game.add.sprite(300, 585, 'corpse');
     grandfather = game.add.sprite(1300, 425, 'grandfather');
     player = game.add.sprite(1150, 500, 'player');
     menuButton = game.add.image(1725, 630, 'menuButton');
     booksButton = game.add.image(1635, 630, 'booksButton');
-    nextButton = game.add.button(250, 800, 'nextButton', nextScene, this);
-    previousButton = game.add.button(0, 800, 'previousButton', previousScene, this);
+    nextButton = game.add.button(250, 900, 'nextButton', nextScene, this);
+    previousButton = game.add.button(0, 900, 'previousButton', previousScene, this);
 
     game.physics.enable(constable, Phaser.Physics.ARCADE);
     game.physics.enable(corpse, Phaser.Physics.ARCADE);
@@ -58,15 +61,23 @@ function create() {
     grandfather.animations.add('grandfatherIdleRight', [7], 1, true);
     grandfather.animations.add('grandfatherIdleLeft', [4], 1, true);
     grandfather.animations.add('grandfatherIdleFront', [1], 1, true);
+    grandfather.animations.add('grandfatherIdleBack', [10], 1, true);
     constable.animations.add('constableIdleLeft', [4], 1, true);
     constable.animations.add('constableIdleFront', [1], 1, true);
+    constable.animations.add('constableIdleBack', [10], 1, true);
 
-    direction = "left";
+    if (scene != "clue search") {
+        direction = "left";
+    }
 }
 
 function nextScene() {
-    if (scene == "crime scene") {
+    if (scene == "clue search") {
         scene = "confrontation";
+        create();
+        stopMoving();
+    }else if (scene == "crime scene") {
+        scene = "clue search";
         create();
         stopMoving();
     } else if (scene == "house") {
@@ -74,22 +85,26 @@ function nextScene() {
         create();
         stopMoving();
     }
-}
+} // this function changes to the next scene
 
 function previousScene() {
     if (scene == "crime scene") {
         scene = "house";
         create();
         stopMoving();
-    } else if (scene == "confrontation") {
+    } else if (scene == "clue search") {
         scene = "crime scene";
         create();
         stopMoving();
+    } else if (scene == "confrontation") {
+        scene = "clue search";
+        create();
+        stopMoving();
     }
-}
+} // this function changes to the previous scene, and will be removed later
 
 function onTap(pointer) {
-    if (pointer.y < 700) {
+    if (pointer.y < 700 && scene != "clue search") {
         destination = game.add.sprite(pointer.x, pointer.y, 'destination');
         moving = true;
         if (destination.x < player.x) {
@@ -98,13 +113,13 @@ function onTap(pointer) {
             direction = "right";
         }
     }
-}
+} // this function spawns a 'destination' sprite when the player taps the top screen, and then sets a direction to face
 
 function stopMoving() {
     moving = false;
     destination.destroy();
     player.body.velocity.x = 0;
-}
+} // this function despawns the 'destination' sprite and stops the player's movement
 
 function update() {
     if (scene == "house") {
@@ -128,6 +143,19 @@ function update() {
         constable.y = 393;
     } else if (scene == "clue search") {
         player.animations.play('playerIdleBack');
+        grandfather.animations.play('grandfatherIdleBack');
+        constable.animations.play('constableIdleBack');
+        dialogueBox.visible = false;
+        corpse.x = 700;
+        corpse.y = 300;
+        player.x = 878;
+        player.y = 700;
+        menuButton.y = 925;
+        booksButton.y = 925;
+        grandfather.x = 750;
+        grandfather.y = 750;
+        constable.x = 900;
+        constable.y = 725;
     } else if (scene == "confrontation") {
         grandfather.animations.play('grandfatherIdleLeft');
         constable.animations.play('constableIdleLeft');
@@ -152,24 +180,27 @@ function update() {
             stopMoving();
         }
     } else {
-        if (direction == "left") {
-            player.animations.play('playerIdleLeft');
-        } else {
-            player.animations.play('playerIdleRight');
+        if (scene != "clue search") {
+            if (direction == "left") {
+                player.animations.play('playerIdleLeft');
+            } else {
+                player.animations.play('playerIdleRight');
+            }
         } // this if statement makes sure that the player is facing the right direction when they stop walking
     }
+
     if (!moving && player.x < 550 && player.x > 250 && scene == "confrontation") {
         player.animations.play('playerIdleBack');
-    }
+    } // this small if statement makes the player face the suspect when they're right next to them
 
     if (grandfather.visible == true) {
         grandfather.body.immovable = true;
         game.physics.arcade.collide(player, grandfather, stopMoving, null, this);
     }
     if (corpse.visible == true) {
-    corpse.body.immovable = true;
-    game.physics.arcade.collide(player, corpse, stopMoving, null, this);
-    }
+        corpse.body.immovable = true;
+        game.physics.arcade.collide(player, corpse, stopMoving, null, this);
+    } // these two if statements make the corpse and grandfather impassable if they are visible
 
     game.input.onTap.add(onTap, this);
 }

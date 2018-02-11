@@ -1,5 +1,7 @@
 var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update, render: render });
-var scene = "house", player, nextButton, previousButton, grandfather, constable, corpse, detective, inspector, door, background, dialogueBox, menuButton, booksButton, destination, moving = false, direction = "left";
+var scene = "house", player, nextButton, previousButton, grandfather, constable, corpse, detective, inspector, door, background,
+    dialogueBox, menuButton, menuScroll, resumeButton, startOverButton, quitButton, paused = false, booksButton, book, bookBackButton, destination,
+    moving = false, direction = "left";
 
 function preload() {
     this.game.load.image('house_background', 'images/house_background.png');
@@ -8,7 +10,13 @@ function preload() {
     this.game.load.image('confrontation_background', 'images/confrontation_background.png');
     this.game.load.image('dialogueBox', 'images/dialogueBox.png');
     this.game.load.image('menuButton', 'images/menuButton.png');
+    this.game.load.image('menu', 'images/menuTemp.png');
+    this.game.load.image('resumeButton', 'images/resumeButton.png');
+    this.game.load.image('startOverButton', 'images/startOverButton.png');
+    this.game.load.image('quitButton', 'images/quitButton.png');
     this.game.load.image('booksButton', 'images/booksButton.png');
+    this.game.load.image('book', 'images/book.png');
+    this.game.load.image('bookBackButton', 'images/bookBackButton.png');
     this.game.load.image('destination', 'images/destination.png');
     this.game.load.spritesheet('player', 'images/player.png', 150, 150);
     this.game.load.spritesheet('grandfather', 'images/grandfather.png', 225, 225);
@@ -37,8 +45,26 @@ function create() {
     corpse = game.add.sprite(300, 585, 'corpse');
     grandfather = game.add.sprite(1300, 425, 'grandfather');
     player = game.add.sprite(1150, 500, 'player');
-    menuButton = game.add.image(1725, 630, 'menuButton');
-    booksButton = game.add.image(1635, 630, 'booksButton');
+    menuButton = game.add.button(1725, 630, 'menuButton', showMenu, this);
+    booksButton = game.add.button(1635, 630, 'booksButton', showBooks, this);
+    // this group of code creates the main set of sprites and images
+
+    menuScroll = game.add.image(550, 100, 'menu');
+    resumeButton = game.add.button(700, 235, 'resumeButton', resume, this);
+    startOverButton = game.add.button(700, 410, 'startOverButton', startOver, this);
+    quitButton = game.add.button(700, 585, 'quitButton', quit, this);
+    menuScroll.visible = false;
+    resumeButton.visible = false;
+    startOverButton.visible = false;
+    quitButton.visible = false;
+    // this group of code create the pause menu for the game
+
+    book = game.add.image(150, 75, 'book');
+    bookBackButton = game.add.button(255, 100, 'bookBackButton', closeBook, this);
+    book.visible = false;
+    bookBackButton.visible = false;
+    // this group of code creates the books the player has to use
+
     nextButton = game.add.button(250, 900, 'nextButton', nextScene, this);
     previousButton = game.add.button(0, 900, 'previousButton', previousScene, this);
 
@@ -68,6 +94,59 @@ function create() {
 
     if (scene != "clue search") {
         direction = "left";
+    }
+}
+
+function showMenu() {
+    if (!paused) {
+        paused = true;
+        stopMoving();
+        player.visible = false;
+        menuScroll.visible = true;
+        resumeButton.visible = true;
+        quitButton.visible = true;
+        startOverButton.visible = true;
+    }
+}
+
+function resume() {
+    paused = false;
+    menuScroll.visible = false;
+    resumeButton.visible = false;
+    startOverButton.visible = false;
+    quitButton.visible = false;
+    player.visible = true;    
+    stopMoving();
+}
+
+function startOver() {
+    paused = false;
+    scene = "house";
+    create();
+    stopMoving();
+}
+
+function quit() {
+    window.location.href = "https://georgebritton.nuacomputerscience.co.uk";
+}
+
+function showBooks() {
+    if (!paused) {
+        paused = true;
+        book.visible = true;
+        bookBackButton.visible = true;
+        player.visible = false;
+        stopMoving();
+    }
+}
+
+function closeBook() {
+    if (paused) {
+        book.visible = false;
+        bookBackButton.visible = false;
+        player.visible = true;
+        stopMoving();
+        paused = false;
     }
 }
 

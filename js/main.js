@@ -1,7 +1,7 @@
 var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update, render: render });
 var scene = "house", player, nextButton, previousButton, grandfather, constable, corpse, detective, inspector, door, background,
-    dialogueBox, menuButton, menuScroll, resumeButton, startOverButton, quitButton, paused = false, booksButton, book, bookBackButton, destination,
-    moving = false, direction = "left";
+    dialogueBox, menuButton, menuScroll, resumeButton, startOverButton, quitButton, paused = false, booksButton, book, bookBackButton,
+    bookOut = "logbook", poisonTab, bugsTab, logbookTab, destination, moving = false, direction = "left";
 
 function preload() {
     this.game.load.image('house_background', 'images/house_background.png');
@@ -17,6 +17,9 @@ function preload() {
     this.game.load.image('booksButton', 'images/booksButton.png');
     this.game.load.image('book', 'images/book.png');
     this.game.load.image('bookBackButton', 'images/bookBackButton.png');
+    this.game.load.image('logbookTab', 'images/logbookTab.png');
+    this.game.load.image('poisonTab', 'images/poisonTab.png');
+    this.game.load.image('bugsTab', 'images/bugsTab.png');
     this.game.load.image('destination', 'images/destination.png');
     this.game.load.spritesheet('player', 'images/player.png', 150, 150);
     this.game.load.spritesheet('grandfather', 'images/grandfather.png', 225, 225);
@@ -61,8 +64,14 @@ function create() {
 
     book = game.add.image(150, 75, 'book');
     bookBackButton = game.add.button(255, 100, 'bookBackButton', closeBook, this);
+    logbookTab = game.add.button(1555, 120, 'logbookTab', openLogbook, this);
+    poisonTab = game.add.button(1575, 370, 'poisonTab', openPoison, this);
+    bugsTab = game.add.button(1605, 620, 'bugsTab', openBugs, this);
     book.visible = false;
     bookBackButton.visible = false;
+    logbookTab.visible = false;
+    poisonTab.visible = false;
+    bugsTab.visible = false;
     // this group of code creates the books the player has to use
 
     nextButton = game.add.button(250, 900, 'nextButton', nextScene, this);
@@ -107,7 +116,7 @@ function showMenu() {
         quitButton.visible = true;
         startOverButton.visible = true;
     }
-}
+} // this function brings up the pause menu
 
 function resume() {
     paused = false;
@@ -117,38 +126,68 @@ function resume() {
     quitButton.visible = false;
     player.visible = true;    
     stopMoving();
-}
+} // this function resumes the game from the start menu
 
 function startOver() {
     paused = false;
     scene = "house";
     create();
     stopMoving();
-}
+} // this function restarts the game
 
 function quit() {
     window.location.href = "https://georgebritton.nuacomputerscience.co.uk";
-}
+} //this function send the player to my blog
 
 function showBooks() {
     if (!paused) {
         paused = true;
         book.visible = true;
         bookBackButton.visible = true;
+        logbookTab.visible = true;
+        poisonTab.visible = true;
+        bugsTab.visible = true;
         player.visible = false;
         stopMoving();
     }
-}
+} // this function brings up the player's books
 
 function closeBook() {
     if (paused) {
         book.visible = false;
         bookBackButton.visible = false;
+        logbookTab.visible = false;
+        poisonTab.visible = false;
+        bugsTab.visible = false;
         player.visible = true;
-        stopMoving();
         paused = false;
+        stopMoving();
     }
-}
+} // this function closes the player's books
+
+function openLogbook() {
+    bookOut = "logbook";
+    logbookTab.x = 1555;
+    poisonTab.x = 1575;
+    bugsTab.x = 1605;
+    stopMoving();
+} // this function opens the player's logbook
+
+function openPoison() {
+    bookOut = "poison";
+    logbookTab.x = 1585;
+    poisonTab.x = 1565;
+    bugsTab.x = 1605;
+    stopMoving();
+} // this function opens the book on poisons
+
+function openBugs() {
+    bookOut = "bugs";
+    logbookTab.x = 1585;
+    poisonTab.x = 1600;
+    bugsTab.x = 1580;
+    stopMoving();
+} // this function opens the book on bugs
 
 function nextScene() {
     if (scene == "clue search") {
@@ -281,7 +320,9 @@ function update() {
         game.physics.arcade.collide(player, corpse, stopMoving, null, this);
     } // these two if statements make the corpse and grandfather impassable if they are visible
 
-    game.input.onTap.add(onTap, this);
+    if (!paused) {
+        game.input.onTap.add(onTap, this);
+    }
 }
 
 function render() {

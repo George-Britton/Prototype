@@ -63,12 +63,15 @@ function create() {
     // this group of code create the pause menu for the game
 
     book = game.add.image(150, 75, 'book');
-    bookBackButton = game.add.button(255, 100, 'bookBackButton', closeBook, this);
+    bookBackButton = game.add.button(253, 92, 'bookBackButton', closeBook, this);
     logbookTab = game.add.button(1555, 120, 'logbookTab', openLogbook, this);
     poisonTab = game.add.button(1575, 370, 'poisonTab', openPoison, this);
     bugsTab = game.add.button(1605, 620, 'bugsTab', openBugs, this);
     book.visible = false;
     bookBackButton.visible = false;
+    logbookTab.rotation = -0.055;
+    poisonTab.rotation = -0.055;
+    bugsTab.rotation = -0.055;
     logbookTab.visible = false;
     poisonTab.visible = false;
     bugsTab.visible = false;
@@ -203,6 +206,8 @@ function nextScene() {
         create();
         stopMoving();
     }
+    closeBook();
+    resume();
 } // this function changes to the next scene
 
 function previousScene() {
@@ -219,6 +224,8 @@ function previousScene() {
         create();
         stopMoving();
     }
+    closeBook();
+    resume();
 } // this function changes to the previous scene, and will be removed later
 
 function onTap(pointer) {

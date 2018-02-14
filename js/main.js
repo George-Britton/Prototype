@@ -1,7 +1,7 @@
 var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update, render: render });
 var scene = "house", player, nextButton, previousButton, grandfather, constable, corpse, detective, inspector, door, background,
     dialogueBox, menuButton, menuScroll, resumeButton, startOverButton, quitButton, paused = false, booksButton, book, bookBackButton,
-    bookOut = "logbook", poisonTab, poisonTitle, bugsTab, bugsTitle, logbookTab, logbookTitle, pageOn = 0, destination, moving = false, direction = "left",
+    bookOut = "logbook", poisonTab, poisonTitle, bugsTab, bugsTitle, logbookTab, logbookTitle, nextPageTab, previousPageTab, pageOn = 0, destination, moving = false, direction = "left",
     cluesFound = [], clueSearchKey, keyFound = false, keyClue;
 
 function preload() {
@@ -24,6 +24,8 @@ function preload() {
     this.game.load.image('poisonTitle', 'images/poisonTitle.png');
     this.game.load.image('bugsTab', 'images/bugsTab.png');
     this.game.load.image('bugsTitle', 'images/bugsTitle.png');
+    this.game.load.image('nextPageTab', 'images/nextPageTab.png');
+    this.game.load.image('previousPageTab', 'images/previousPageTab.png');
     this.game.load.image('destination', 'images/destination.png');
     this.game.load.spritesheet('player', 'images/player.png', 150, 150);
     this.game.load.spritesheet('grandfather', 'images/grandfather.png', 225, 225);
@@ -78,6 +80,10 @@ function create() {
     bugsTab.rotation = -0.05;
     bugsTitle = game.add.image(1000, 300, 'bugsTitle');
     bugsTitle.visible = false;
+    nextPageTab = game.add.button(1475, 775, 'nextPageTab', nextPage, this);
+    previousPageTab = game.add.button(220, 770, 'previousPageTab', previousPage, this);
+    nextPageTab.visible = false;
+    previousPageTab.visible = false;
     book.visible = false;
     bookBackButton.visible = false;
     logbookTab.visible = false;
@@ -198,33 +204,58 @@ function showPages() {
             logbookTitle.visible = true;
             poisonTitle.visible = false;
             bugsTitle.visible = false;
+            nextPageTab.visible = true;
+            previousPageTab.visible = false;
         } else if (pageOn == 1) {
-
+            logbookTitle.visible = false;
+            nextPageTab.visible = true;
+            previousPageTab.visible = true;
         } else if (pageOn == 2) {
-
+            nextPageTab.visible = false;
+            previousPageTab.visible = true;
         }
     } else if (bookOut == "poison") {
         if (pageOn == 0) {
             poisonTitle.visible = true;
             logbookTitle.visible = false;
             bugsTitle.visible = false;
+            nextPageTab.visible = true;
+            previousPageTab.visible = false;
         } else if (pageOn == 1) {
-
+            poisonTitle.visible = false;
+            nextPageTab.visible = true;
+            previousPageTab.visible = true;
         } else if (pageOn == 2) {
-
+            nextPageTab.visible = false;
+            previousPageTab.visible = true;
         }
     } else if (bookOut == "bugs") {
         if (pageOn == 0) {
             bugsTitle.visible = true;
             logbookTitle.visible = false;
             poisonTitle.visible = false;
+            nextPageTab.visible = true;
+            previousPageTab.visible = false;
         } else if (pageOn == 1) {
-
+            bugsTitle.visible = false;
+            nextPageTab.visible = true;
+            previousPageTab.visible = true;
         } else if (pageOn == 2) {
-
+            nextPageTab.visible = false;
+            previousPageTab.visible = true;
         }
     }
 } // this function allows the player to effectively traverse the books and pages of said books
+
+function nextPage() {
+    pageOn++;
+    showPages();
+} // this function turns the page to the next one of whichever book the player has out
+
+function previousPage() {
+    pageOn--;
+    showPages();
+} // this function turns the page to the previous one of whichever book the player has out
 
 function closeBook() {
     if (paused) {
@@ -237,6 +268,8 @@ function closeBook() {
         logbookTitle.visible = false;
         poisonTitle.visible = false;
         bugsTitle.visible = false;
+        nextPageTab.visible = false;
+        previousPageTab.visible = false;
         paused = false;
         stopMoving();
     }

@@ -1,8 +1,8 @@
 var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update, render: render });
 var scene = "house", player, nextButton, previousButton, grandfather, constable, corpse, detective, inspector, door, background,
     dialogueBox, menuButton, menuScroll, resumeButton, startOverButton, quitButton, paused = false, booksButton, book, bookBackButton,
-    bookOut = "logbook", poisonTab, bugsTab, logbookTab, destination, moving = false, direction = "left",
-    clueSearchKey, keyFound, keyClue;
+    bookOut = "logbook", poisonTab, poisonTitle, bugsTab, bugsTitle, logbookTab, logbookTitle, pageOn = 0, destination, moving = false, direction = "left",
+    cluesFound = [], clueSearchKey, keyFound = false, keyClue;
 
 function preload() {
     this.game.load.image('house_background', 'images/house_background.png');
@@ -19,8 +19,11 @@ function preload() {
     this.game.load.image('book', 'images/book.png');
     this.game.load.image('bookBackButton', 'images/bookBackButton.png');
     this.game.load.image('logbookTab', 'images/logbookTab.png');
+    this.game.load.image('logbookTitle', 'images/logbookTitle.png');
     this.game.load.image('poisonTab', 'images/poisonTab.png');
+    this.game.load.image('poisonTitle', 'images/poisonTitle.png');
     this.game.load.image('bugsTab', 'images/bugsTab.png');
+    this.game.load.image('bugsTitle', 'images/bugsTitle.png');
     this.game.load.image('destination', 'images/destination.png');
     this.game.load.spritesheet('player', 'images/player.png', 150, 150);
     this.game.load.spritesheet('grandfather', 'images/grandfather.png', 225, 225);
@@ -31,6 +34,7 @@ function preload() {
     this.game.load.image('clueSearch_key', 'images/clueSearch_key.png');
     this.game.load.image('nextButton', 'images/nextScene.png');
     this.game.load.image('previousButton', 'images/previousScene.png');
+    this.game.load.image('keyClue', 'images/keyClue.png');
 }
 
 function create() {
@@ -64,10 +68,16 @@ function create() {
     bookBackButton = game.add.button(253, 92, 'bookBackButton', closeBook, this);
     logbookTab = game.add.button(1555, 120, 'logbookTab', openLogbook, this);
     logbookTab.rotation = -0.05;
+    logbookTitle = game.add.image(1000, 300, 'logbookTitle');
+    logbookTitle.visible = false;
     poisonTab = game.add.button(1580, 370, 'poisonTab', openPoison, this);
     poisonTab.rotation = -0.05;
+    poisonTitle = game.add.image(1000, 250, 'poisonTitle');
+    poisonTitle.visible = false;
     bugsTab = game.add.button(1605, 620, 'bugsTab', openBugs, this);
     bugsTab.rotation = -0.05;
+    bugsTitle = game.add.image(1000, 300, 'bugsTitle');
+    bugsTitle.visible = false;
     book.visible = false;
     bookBackButton.visible = false;
     logbookTab.visible = false;
@@ -75,20 +85,29 @@ function create() {
     bugsTab.visible = false;
     // this group of code creates the books the player has to use
 
-    clueSearchKey = game.add.button(886, 353, 'clueSearch_key', keyFind, this);
+    clueSearchKey = game.add.button(875, 345, 'clueSearch_key', keyFind, this);
+    clueSearchKey.visible = false;
+
+
+    keyClue = game.add.button(300, 250, 'keyClue', presentKey, this);
+    keyClue.visible = false;
+
 
     nextButton = game.add.button(250, 900, 'nextButton', nextScene, this);
     previousButton = game.add.button(0, 900, 'previousButton', previousScene, this);
+    //these two statements are just temporary scene skippers for the demo
 
     game.physics.enable(constable, Phaser.Physics.ARCADE);
     game.physics.enable(corpse, Phaser.Physics.ARCADE);
     game.physics.enable(grandfather, Phaser.Physics.ARCADE);
     game.physics.enable(player, Phaser.Physics.ARCADE);
+    // these four lines enable the physics of the characters
 
     player.anchor.setTo(0.5, 0);
     player.body.setSize(player.width - 40, player.height - 20, 20, 20);
     grandfather.anchor.setTo(0.5, 0);
     grandfather.body.setSize(grandfather.width - 80, grandfather.height - 20, 20, 20);
+    // these four lines set the anchors and sprites of the two (potentially) moving characters
 
     player.animations.add('playerIdleRight', [7], 1, true);
     player.animations.add('playerIdleLeft', [4], 1, true);
@@ -103,13 +122,20 @@ function create() {
     constable.animations.add('constableIdleLeft', [4], 1, true);
     constable.animations.add('constableIdleFront', [1], 1, true);
     constable.animations.add('constableIdleBack', [10], 1, true);
+    // these are all the declared animations for the character sprites
 
     if (scene != "clue search") {
         direction = "left";
-    }
+    }// this if statement is just here so the player faces the body on the clue search screen
 }
 
 function keyFind() {
+    clueSearchKey.visible = false;
+    cluesFound[cluesFound.length] = "key";
+    keyFound = true;
+} // this if statement hides the key and adds it to the logbook when the player picks it up
+
+function presentKey() {
 
 }
 
@@ -156,8 +182,49 @@ function showBooks() {
         bugsTab.visible = true;
         player.visible = false;
         stopMoving();
+        if (bookOut == "logbook") {
+            openLogbook();
+        } else if (bookOut == "poison") {
+            openPoison();
+        } else if (bookOut == "bugs") {
+            openBugs();
+        }
     }
 } // this function brings up the player's books
+
+function showPages() {
+    if (bookOut == "logbook") {
+        if (pageOn == 0) {
+            logbookTitle.visible = true;
+            poisonTitle.visible = false;
+            bugsTitle.visible = false;
+        } else if (pageOn == 1) {
+
+        } else if (pageOn == 2) {
+
+        }
+    } else if (bookOut == "poison") {
+        if (pageOn == 0) {
+            poisonTitle.visible = true;
+            logbookTitle.visible = false;
+            bugsTitle.visible = false;
+        } else if (pageOn == 1) {
+
+        } else if (pageOn == 2) {
+
+        }
+    } else if (bookOut == "bugs") {
+        if (pageOn == 0) {
+            bugsTitle.visible = true;
+            logbookTitle.visible = false;
+            poisonTitle.visible = false;
+        } else if (pageOn == 1) {
+
+        } else if (pageOn == 2) {
+
+        }
+    }
+} // this function allows the player to effectively traverse the books and pages of said books
 
 function closeBook() {
     if (paused) {
@@ -167,6 +234,9 @@ function closeBook() {
         poisonTab.visible = false;
         bugsTab.visible = false;
         player.visible = true;
+        logbookTitle.visible = false;
+        poisonTitle.visible = false;
+        bugsTitle.visible = false;
         paused = false;
         stopMoving();
     }
@@ -177,6 +247,7 @@ function openLogbook() {
     logbookTab.x = 1555;
     poisonTab.x = 1580;
     bugsTab.x = 1605;
+    showPages();
     stopMoving();
 } // this function opens the player's logbook
 
@@ -185,6 +256,7 @@ function openPoison() {
     logbookTab.x = 1585;
     poisonTab.x = 1567;
     bugsTab.x = 1605;
+    showPages();
     stopMoving();
 } // this function opens the book on poisons
 
@@ -193,6 +265,7 @@ function openBugs() {
     logbookTab.x = 1585;
     poisonTab.x = 1600;
     bugsTab.x = 1581;
+    showPages();
     stopMoving();
 } // this function opens the book on bugs
 
@@ -273,6 +346,9 @@ function update() {
         grandfather.animations.play('grandfatherIdleBack');
         constable.animations.play('constableIdleBack');
         dialogueBox.visible = false;
+        if (!keyFound) {
+            clueSearchKey.visible = true;
+        }
         corpse.x = 700;
         corpse.y = 300;
         player.x = 878;

@@ -1,7 +1,8 @@
 var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update, render: render });
 var scene = "house", player, nextButton, previousButton, grandfather, constable, corpse, detective, inspector, door, background,
     dialogueBox, menuButton, menuScroll, resumeButton, startOverButton, quitButton, paused = false, booksButton, book, bookBackButton,
-    bookOut = "logbook", poisonTab, bugsTab, logbookTab, destination, moving = false, direction = "left";
+    bookOut = "logbook", poisonTab, bugsTab, logbookTab, destination, moving = false, direction = "left",
+    clueSearchKey, keyFound, keyClue;
 
 function preload() {
     this.game.load.image('house_background', 'images/house_background.png');
@@ -27,20 +28,17 @@ function preload() {
     this.game.load.spritesheet('detective', 'images/detective.png', 250, 250);
     this.game.load.spritesheet('inspector', 'images/inspector.png', 250, 250);
     this.game.load.image('corpse', 'images/body.png');
+    this.game.load.image('clueSearch_key', 'images/clueSearch_key.png');
     this.game.load.image('nextButton', 'images/nextScene.png');
     this.game.load.image('previousButton', 'images/previousScene.png');
 }
 
 function create() {
     game.world.removeAll();
-    if (scene == "house") {
-        background = game.add.image(0, 0, 'house_background');
-    } else if (scene == "crime scene") {
-        background = game.add.image(0, 0, 'crimeScene_background');
-    } else if (scene == "clue search") {
-        background = game.add.image(0, 0, 'clueSearch_background');
-    } else if (scene == "confrontation") {
-        background = game.add.image(0, 0, 'confrontation_background');
+    if (scene == "house") {background = game.add.image(0, 0, 'house_background');
+    } else if (scene == "crime scene") {background = game.add.image(0, 0, 'crimeScene_background');
+    } else if (scene == "clue search") {background = game.add.image(0, 0, 'clueSearch_background');
+    } else if (scene == "confrontation") {background = game.add.image(0, 0, 'confrontation_background');
     } //this if statement assigns the correct background image for the scene
        
     dialogueBox = game.add.image(0, 700, 'dialogueBox');
@@ -63,16 +61,21 @@ function create() {
     // this group of code create the pause menu for the game
 
     book = game.add.image(150, 75, 'book');
-    bookBackButton = game.add.button(255, 100, 'bookBackButton', closeBook, this);
+    bookBackButton = game.add.button(253, 92, 'bookBackButton', closeBook, this);
     logbookTab = game.add.button(1555, 120, 'logbookTab', openLogbook, this);
-    poisonTab = game.add.button(1575, 370, 'poisonTab', openPoison, this);
+    logbookTab.rotation = -0.05;
+    poisonTab = game.add.button(1580, 370, 'poisonTab', openPoison, this);
+    poisonTab.rotation = -0.05;
     bugsTab = game.add.button(1605, 620, 'bugsTab', openBugs, this);
+    bugsTab.rotation = -0.05;
     book.visible = false;
     bookBackButton.visible = false;
     logbookTab.visible = false;
     poisonTab.visible = false;
     bugsTab.visible = false;
     // this group of code creates the books the player has to use
+
+    clueSearchKey = game.add.button(886, 353, 'clueSearch_key', keyFind, this);
 
     nextButton = game.add.button(250, 900, 'nextButton', nextScene, this);
     previousButton = game.add.button(0, 900, 'previousButton', previousScene, this);
@@ -104,6 +107,10 @@ function create() {
     if (scene != "clue search") {
         direction = "left";
     }
+}
+
+function keyFind() {
+
 }
 
 function showMenu() {
@@ -168,7 +175,7 @@ function closeBook() {
 function openLogbook() {
     bookOut = "logbook";
     logbookTab.x = 1555;
-    poisonTab.x = 1575;
+    poisonTab.x = 1580;
     bugsTab.x = 1605;
     stopMoving();
 } // this function opens the player's logbook
@@ -176,7 +183,7 @@ function openLogbook() {
 function openPoison() {
     bookOut = "poison";
     logbookTab.x = 1585;
-    poisonTab.x = 1565;
+    poisonTab.x = 1567;
     bugsTab.x = 1605;
     stopMoving();
 } // this function opens the book on poisons
@@ -185,7 +192,7 @@ function openBugs() {
     bookOut = "bugs";
     logbookTab.x = 1585;
     poisonTab.x = 1600;
-    bugsTab.x = 1580;
+    bugsTab.x = 1581;
     stopMoving();
 } // this function opens the book on bugs
 
@@ -203,6 +210,7 @@ function nextScene() {
         create();
         stopMoving();
     }
+    paused = false;
 } // this function changes to the next scene
 
 function previousScene() {
@@ -219,6 +227,7 @@ function previousScene() {
         create();
         stopMoving();
     }
+    paused = false;
 } // this function changes to the previous scene, and will be removed later
 
 function onTap(pointer) {

@@ -1,8 +1,8 @@
 var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, create: create, update: update, render: render });
 var scene = "house", player, nextButton, previousButton, grandfather, constable, corpse, detective, inspector, door, background,
     dialogueBox, menuButton, menuScroll, resumeButton, startOverButton, quitButton, paused = false, booksButton, book, bookBackButton,
-    bookOut = "logbook", poisonTab, poisonTitle, bugsTab, bugsTitle, logbookTab, logbookTitle, nextPageTab, previousPageTab, pageOn = 0, destination, moving = false, direction = "left",
-    cluesFound = [], clueSearchKey, keyFound = false, keyClue;
+    bookOut = "logbook", poisonTab, poisonTitle, bugsTab, bugsTitle, logbookTab, logbookTitle, nextPageTab, previousPageTab, pageOn = 0,
+    destination, moving = false, direction = "left", cluesFound = [], clueSearchKey, keyFound = false, keyClue;
 
 function preload() {
     this.game.load.image('house_background', 'images/house_background.png');
@@ -202,15 +202,20 @@ function showPages() {
     if (bookOut == "logbook") {
         if (pageOn == 0) {
             logbookTitle.visible = true;
+            keyClue.visible = false;
             poisonTitle.visible = false;
             bugsTitle.visible = false;
             nextPageTab.visible = true;
             previousPageTab.visible = false;
         } else if (pageOn == 1) {
             logbookTitle.visible = false;
+            if (keyFound) {
+                keyClue.visible = true;
+            }
             nextPageTab.visible = true;
             previousPageTab.visible = true;
         } else if (pageOn == 2) {
+            keyClue.visible = false;
             nextPageTab.visible = false;
             previousPageTab.visible = true;
         }
@@ -222,6 +227,7 @@ function showPages() {
             nextPageTab.visible = true;
             previousPageTab.visible = false;
         } else if (pageOn == 1) {
+            keyClue.visible = false;
             poisonTitle.visible = false;
             nextPageTab.visible = true;
             previousPageTab.visible = true;
@@ -237,6 +243,7 @@ function showPages() {
             nextPageTab.visible = true;
             previousPageTab.visible = false;
         } else if (pageOn == 1) {
+            keyClue.visible = false;
             bugsTitle.visible = false;
             nextPageTab.visible = true;
             previousPageTab.visible = true;
@@ -266,6 +273,7 @@ function closeBook() {
         bugsTab.visible = false;
         player.visible = true;
         logbookTitle.visible = false;
+        keyClue.visible = false;
         poisonTitle.visible = false;
         bugsTitle.visible = false;
         nextPageTab.visible = false;
@@ -382,6 +390,9 @@ function update() {
         if (!keyFound) {
             clueSearchKey.visible = true;
         }
+        if (paused) {
+            clueSearchKey.visible = false;
+        }
         corpse.x = 700;
         corpse.y = 300;
         player.x = 878;
@@ -440,7 +451,13 @@ function update() {
 
     if (!paused) {
         game.input.onTap.add(onTap, this);
-    }
+    } // this if statement checks for on-screen taps to start the player moving
+
+    if (book.visible == true && nextPageTab.visible == false && previousPageTab.visible == false) {
+        bookOut = "logbook";
+        pageOn = 0;
+        showPages();
+    } // don't ask why this is here, just leave it here and everything will be fine
 }
 
 function render() {

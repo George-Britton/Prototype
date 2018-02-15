@@ -370,7 +370,7 @@ function previousScene() {
 } // this function changes to the previous scene, and will be removed later
 
 function onTap(pointer) {
-    if (pointer.y < 700 && scene != "clue search") {
+    if (pointer.y < 700 && scene != "clue search" && !paused) {
         destination = game.add.sprite(pointer.x, pointer.y, 'destination');
         moving = true;
         if (destination.x < player.x) {

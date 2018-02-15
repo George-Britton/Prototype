@@ -150,7 +150,9 @@ function presentKey() {
 function showMenu() {
     if (!paused) {
         paused = true;
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
         player.visible = false;
         menuScroll.visible = true;
         resumeButton.visible = true;
@@ -166,7 +168,9 @@ function resume() {
     startOverButton.visible = false;
     quitButton.visible = false;
     player.visible = true;    
-    stopMoving();
+    if (moving) {
+        stopMoving();
+    }
 } // this function resumes the game from the start menu
 
 function startOver() {
@@ -177,7 +181,9 @@ function startOver() {
     bookOut = "logbook";
     pageOn = 0;
     create();
-    stopMoving();
+    if (moving) {
+        stopMoving();
+    }
 } // this function restarts the game
 
 function quit() {
@@ -193,7 +199,9 @@ function showBooks() {
         poisonTab.visible = true;
         bugsTab.visible = true;
         player.visible = false;
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
         if (bookOut == "logbook") {
             openLogbook();
         } else if (bookOut == "poison") {
@@ -285,7 +293,9 @@ function closeBook() {
         nextPageTab.visible = false;
         previousPageTab.visible = false;
         paused = false;
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     }
 } // this function closes the player's books
 
@@ -295,7 +305,9 @@ function openLogbook() {
     poisonTab.x = 1580;
     bugsTab.x = 1605;
     showPages();
-    stopMoving();
+    if (moving) {
+        stopMoving();
+    }
 } // this function opens the player's logbook
 
 function openPoison() {
@@ -304,7 +316,9 @@ function openPoison() {
     poisonTab.x = 1567;
     bugsTab.x = 1605;
     showPages();
-    stopMoving();
+    if (moving) {
+        stopMoving();
+    }
 } // this function opens the book on poisons
 
 function openBugs() {
@@ -313,22 +327,30 @@ function openBugs() {
     poisonTab.x = 1600;
     bugsTab.x = 1581;
     showPages();
-    stopMoving();
+    if (moving) {
+        stopMoving();
+    }
 } // this function opens the book on bugs
 
 function nextScene() {
     if (scene == "clue search") {
         scene = "confrontation";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     }else if (scene == "crime scene") {
         scene = "clue search";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     } else if (scene == "house") {
         scene = "crime scene";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     }
     paused = false;
 } // this function changes to the next scene
@@ -337,15 +359,21 @@ function previousScene() {
     if (scene == "crime scene") {
         scene = "house";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     } else if (scene == "clue search") {
         scene = "crime scene";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     } else if (scene == "confrontation") {
         scene = "clue search";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     }
     paused = false;
 } // this function changes to the previous scene, and will be removed later
@@ -469,3 +497,4 @@ function update() {
 function render() {
     
 }
+

@@ -174,16 +174,7 @@ function resume() {
 } // this function resumes the game from the start menu
 
 function startOver() {
-    paused = false;
-    scene = "house";
-    keyFound = false;
-    cluesFound.pop;
-    bookOut = "logbook";
-    pageOn = 0;
-    create();
-    if (moving) {
-        stopMoving();
-    }
+    window.location.reload();
 } // this function restarts the game
 
 function quit() {
@@ -497,4 +488,3 @@ function update() {
 function render() {
     
 }
-

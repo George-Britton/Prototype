@@ -142,7 +142,9 @@ function keyFind() {
 } // this if statement hides the key and adds it to the logbook when the player picks it up
 
 function presentKey() {
-
+    if (scene == "confrontation") {
+        closeBook();
+    }
 }
 
 function showMenu() {

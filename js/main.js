@@ -147,6 +147,7 @@ function keyFind() {
 function presentKey() {
     if (scene == "confrontation") {
         closeBook();
+        pickUpKey.play();
     }
 } // this function closes the book and presents the key to the suspect
 

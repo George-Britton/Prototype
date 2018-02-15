@@ -3,7 +3,7 @@ var scene = "house", player, nextButton, previousButton, grandfather, constable,
     dialogueBox, menuButton, menuScroll, resumeButton, startOverButton, quitButton, paused = false, booksButton, book, bookBackButton,
     bookOut = "logbook", poisonTab, poisonTitle, bugsTab, bugsTitle, logbookTab, logbookTitle, nextPageTab, previousPageTab, pageOn = 0,
     destination, moving = false, direction = "left", cluesFound = [], clueSearchKey, keyFound = false, keyClue,
-    footstep = new Howl({ src: ['audio/footstep.mp3'], loop: 1 }), pickUpKey = new Howl({ src: ['audio/pickUpKey.wav'] }),
+    footstep = new Howl({ src: ['audio/footstep.mp3'], loop: 1 }), pickUpKey = new Howl({ src: ['audio/pickUpKey.wav'], volume: 0.2}),
     pageTurn = new Howl({ src: ['audio/pageTurn.mp3'] }), bookClose = new Howl({ src: ['audio/bookClose.mp3'] });
 
 function preload() {

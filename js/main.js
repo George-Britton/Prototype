@@ -172,6 +172,10 @@ function resume() {
 function startOver() {
     paused = false;
     scene = "house";
+    keyFound = false;
+    cluesFound.pop;
+    bookOut = "logbook";
+    pageOn = 0;
     create();
     stopMoving();
 } // this function restarts the game
@@ -465,4 +469,3 @@ function update() {
 function render() {
     
 }
-

@@ -91,7 +91,7 @@ function create() {
     bugsTab.visible = false;
     // this group of code creates the books the player has to use
 
-    clueSearchKey = game.add.button(875, 345, 'clueSearch_key', keyFind, this);
+    clueSearchKey = game.add.button(860, 330, 'clueSearch_key', keyFind, this);
     clueSearchKey.visible = false;
 
 
@@ -145,7 +145,7 @@ function presentKey() {
     if (scene == "confrontation") {
         closeBook();
     }
-}
+} // this function closes the book and presents the key to the suspect
 
 function showMenu() {
     if (!paused) {
@@ -465,3 +465,4 @@ function update() {
 function render() {
     
 }
+

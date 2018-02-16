@@ -2,7 +2,7 @@ var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, cr
 var scene = "house", player, nextButton, previousButton, grandfather, constable, corpse, detective, inspector, door, background,
     dialogueBox, menuButton, menuScroll, resumeButton, startOverButton, quitButton, paused = false, booksButton, book, bookBackButton,
     bookOut = "logbook", poisonTab, poisonTitle, bugsTab, bugsTitle, logbookTab, logbookTitle, nextPageTab, previousPageTab, pageOn = 0,
-    destination, moving = false, direction = "left", cluesFound = [], clueSearchKey, keyFound = false, keyClue,
+    destination, moving = false, direction = "left", cluesFound = [], clueSearchKey, keyFound = false, keyClue, footstepPlaying = false,
     footstep = new Howl({ src: ['audio/footstep.mp3'], loop: 1 }), pickUpKey = new Howl({ src: ['audio/pickUpKey.wav'], volume: 0.2}),
     pageTurn = new Howl({ src: ['audio/pageTurn.mp3'] }), bookClose = new Howl({ src: ['audio/bookClose.mp3'] });
 
@@ -386,7 +386,10 @@ function onTap(pointer) {
         } else if (destination.x > player.x) {
             direction = "right";
         }
-        footstep.play();
+        if (!footstepPlaying) {
+            footstep.play();
+            footstepPlaying = true;
+        }
     }
 } // this function spawns a 'destination' sprite when the player taps the top screen, and then sets a direction to face
 
@@ -395,6 +398,7 @@ function stopMoving() {
     destination.destroy();
     player.body.velocity.x = 0;
     footstep.stop();
+    footstepPlaying = false;
 } // this function despawns the 'destination' sprite and stops the player's movement
 
 function update() {

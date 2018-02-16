@@ -2,7 +2,9 @@ var game = new Phaser.Game(1800, 1000, Phaser.AUTO, null, { preload: preload, cr
 var scene = "house", player, nextButton, previousButton, grandfather, constable, corpse, detective, inspector, door, background,
     dialogueBox, menuButton, menuScroll, resumeButton, startOverButton, quitButton, paused = false, booksButton, book, bookBackButton,
     bookOut = "logbook", poisonTab, poisonTitle, bugsTab, bugsTitle, logbookTab, logbookTitle, nextPageTab, previousPageTab, pageOn = 0,
-    destination, moving = false, direction = "left", cluesFound = [], clueSearchKey, keyFound = false, keyClue;
+    destination, moving = false, direction = "left", cluesFound = [], clueSearchKey, keyFound = false, keyClue,
+    footstep = new Howl({ src: ['audio/footstep.mp3'], loop: 1 }), pickUpKey = new Howl({ src: ['audio/pickUpKey.wav'], volume: 0.2}),
+    pageTurn = new Howl({ src: ['audio/pageTurn.mp3'] }), bookClose = new Howl({ src: ['audio/bookClose.mp3'] });
 
 function preload() {
     this.game.load.image('house_background', 'images/house_background.png');
@@ -91,7 +93,7 @@ function create() {
     bugsTab.visible = false;
     // this group of code creates the books the player has to use
 
-    clueSearchKey = game.add.button(875, 345, 'clueSearch_key', keyFind, this);
+    clueSearchKey = game.add.button(860, 330, 'clueSearch_key', keyFind, this);
     clueSearchKey.visible = false;
 
 
@@ -139,16 +141,22 @@ function keyFind() {
     clueSearchKey.visible = false;
     cluesFound[cluesFound.length] = "key";
     keyFound = true;
+    pickUpKey.play();
 } // this if statement hides the key and adds it to the logbook when the player picks it up
 
 function presentKey() {
-
-}
+    if (scene == "confrontation") {
+        closeBook();
+        pickUpKey.play();
+    }
+} // this function closes the book and presents the key to the suspect
 
 function showMenu() {
     if (!paused) {
         paused = true;
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
         player.visible = false;
         menuScroll.visible = true;
         resumeButton.visible = true;
@@ -164,14 +172,13 @@ function resume() {
     startOverButton.visible = false;
     quitButton.visible = false;
     player.visible = true;    
-    stopMoving();
+    if (moving) {
+        stopMoving();
+    }
 } // this function resumes the game from the start menu
 
 function startOver() {
-    paused = false;
-    scene = "house";
-    create();
-    stopMoving();
+    window.location.reload();
 } // this function restarts the game
 
 function quit() {
@@ -187,7 +194,10 @@ function showBooks() {
         poisonTab.visible = true;
         bugsTab.visible = true;
         player.visible = false;
-        stopMoving();
+        pageTurn.play();
+        if (moving) {
+            stopMoving();
+        }
         if (bookOut == "logbook") {
             openLogbook();
         } else if (bookOut == "poison") {
@@ -257,11 +267,13 @@ function showPages() {
 function nextPage() {
     pageOn++;
     showPages();
+    pageTurn.play();
 } // this function turns the page to the next one of whichever book the player has out
 
 function previousPage() {
     pageOn--;
     showPages();
+    pageTurn.play();
 } // this function turns the page to the previous one of whichever book the player has out
 
 function closeBook() {
@@ -278,8 +290,11 @@ function closeBook() {
         bugsTitle.visible = false;
         nextPageTab.visible = false;
         previousPageTab.visible = false;
+        bookClose.play();
         paused = false;
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     }
 } // this function closes the player's books
 
@@ -289,7 +304,9 @@ function openLogbook() {
     poisonTab.x = 1580;
     bugsTab.x = 1605;
     showPages();
-    stopMoving();
+    if (moving) {
+        stopMoving();
+    }
 } // this function opens the player's logbook
 
 function openPoison() {
@@ -298,7 +315,9 @@ function openPoison() {
     poisonTab.x = 1567;
     bugsTab.x = 1605;
     showPages();
-    stopMoving();
+    if (moving) {
+        stopMoving();
+    }
 } // this function opens the book on poisons
 
 function openBugs() {
@@ -307,22 +326,30 @@ function openBugs() {
     poisonTab.x = 1600;
     bugsTab.x = 1581;
     showPages();
-    stopMoving();
+    if (moving) {
+        stopMoving();
+    }
 } // this function opens the book on bugs
 
 function nextScene() {
     if (scene == "clue search") {
         scene = "confrontation";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     }else if (scene == "crime scene") {
         scene = "clue search";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     } else if (scene == "house") {
         scene = "crime scene";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     }
     paused = false;
 } // this function changes to the next scene
@@ -331,21 +358,27 @@ function previousScene() {
     if (scene == "crime scene") {
         scene = "house";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     } else if (scene == "clue search") {
         scene = "crime scene";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     } else if (scene == "confrontation") {
         scene = "clue search";
         create();
-        stopMoving();
+        if (moving) {
+            stopMoving();
+        }
     }
     paused = false;
 } // this function changes to the previous scene, and will be removed later
 
 function onTap(pointer) {
-    if (pointer.y < 700 && scene != "clue search") {
+    if (pointer.y < 700 && scene != "clue search" && !paused) {
         destination = game.add.sprite(pointer.x, pointer.y, 'destination');
         moving = true;
         if (destination.x < player.x) {
@@ -353,6 +386,7 @@ function onTap(pointer) {
         } else if (destination.x > player.x) {
             direction = "right";
         }
+        footstep.play();
     }
 } // this function spawns a 'destination' sprite when the player taps the top screen, and then sets a direction to face
 
@@ -360,6 +394,7 @@ function stopMoving() {
     moving = false;
     destination.destroy();
     player.body.velocity.x = 0;
+    footstep.stop();
 } // this function despawns the 'destination' sprite and stops the player's movement
 
 function update() {
@@ -458,8 +493,13 @@ function update() {
         pageOn = 0;
         showPages();
     } // don't ask why this is here, just leave it here and everything will be fine
+
+    if (!moving) {
+        footstep.stop();
+    }
 }
 
 function render() {
     
 }
+

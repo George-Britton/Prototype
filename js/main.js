@@ -4,7 +4,11 @@ var scene = "house", player, nextButton, previousButton, grandfather, constable,
     bookOut = "logbook", poisonTab, poisonTitle, bugsTab, bugsTitle, logbookTab, logbookTitle, nextPageTab, previousPageTab, pageOn = 0,
     destination, moving = false, direction = "left", cluesFound = [], clueSearchKey, keyFound = false, keyClue, footstepPlaying = false,
     footstep = new Howl({ src: ['audio/footstep.mp3'], loop: 1 }), pickUpKey = new Howl({ src: ['audio/pickUpKey.wav'], volume: 0.2}),
-    pageTurn = new Howl({ src: ['audio/pageTurn.mp3'] }), bookClose = new Howl({ src: ['audio/bookClose.mp3'] });
+    pageTurn = new Howl({ src: ['audio/pageTurn.mp3'] }), bookClose = new Howl({ src: ['audio/bookClose.mp3'] }),
+    bag = new Howl({ src: ['audio/bag.mp3'] }), houseMusic = new Howl({ src: ['audio/houseMusic.mp3'] }),
+    confrontationMusic = new Howl({ src: ['audio/confrontationMusic.mp3'] }), clueSearchMusic = new Howl({ src: ['audio/clueSearchMusic.mp3'] }),
+    crimeSceneMusic1 = new Howl({ src: ['audio/crimeSceneMusic1.mp3'] }), crimeSceneMusic2 = new Howl({ src: ['audio/crimeSceneMusic2.mp3'] }),
+    cymbal = new Howl({ src: ['audio/cymbal.mp3'] });
 
 function preload() {
     this.game.load.image('house_background', 'images/house_background.png');
@@ -43,10 +47,21 @@ function preload() {
 
 function create() {
     game.world.removeAll();
-    if (scene == "house") {background = game.add.image(0, 0, 'house_background');
-    } else if (scene == "crime scene") {background = game.add.image(0, 0, 'crimeScene_background');
-    } else if (scene == "clue search") {background = game.add.image(0, 0, 'clueSearch_background');
-    } else if (scene == "confrontation") {background = game.add.image(0, 0, 'confrontation_background');
+    if (scene == "house") {
+        background = game.add.image(0, 0, 'house_background');
+        houseMusic.play();
+        crimeSceneMusic.stop();
+    } else if (scene == "crime scene") {
+        background = game.add.image(0, 0, 'crimeScene_background');
+
+    } else if (scene == "clue search") {
+        background = game.add.image(0, 0, 'clueSearch_background');
+        clueSearchMusic.play();
+        confrontationMusic.stop();
+    } else if (scene == "confrontation") {
+        background = game.add.image(0, 0, 'confrontation_background');
+        confrontationMusic.play();
+
     } //this if statement assigns the correct background image for the scene
        
     dialogueBox = game.add.image(0, 700, 'dialogueBox');
